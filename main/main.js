@@ -43,6 +43,9 @@ function createWindow() {
 
 // 当Electron完成初始化并准备创建浏览器窗口时调用此方法
 app.whenReady().then(() => {
+  // 移除默认菜单
+  Menu.setApplicationMenu(null);
+  
   createWindow();
 
   app.on('activate', function () {
@@ -286,6 +289,21 @@ ipcMain.handle('open-folder-dialog', async () => {
   }
   
   return { success: false, path: null };
+});
+
+// IPC处理程序 - 获取应用信息
+ipcMain.handle('get-app-info', async () => {
+  try {
+    const appVersion = app.getVersion();
+    return { 
+      version: appVersion 
+    };
+  } catch (error) {
+    console.error('获取应用信息失败:', error);
+    return { 
+      version: '1.0.0' // 默认版本
+    };
+  }
 });
 
 // IPC处理程序 - SSH相关操作

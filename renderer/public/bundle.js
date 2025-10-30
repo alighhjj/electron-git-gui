@@ -35517,12 +35517,12 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _components_ProjectPanel__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./components/ProjectPanel */ "./renderer/src/components/ProjectPanel.js");
 /* harmony import */ var _components_WelcomePage__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./components/WelcomePage */ "./renderer/src/components/WelcomePage.js");
 /* harmony import */ var _utils_gitAPI__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../utils/gitAPI */ "./renderer/utils/gitAPI.js");
-function _regenerator() { /*! regenerator-runtime -- Copyright (c) 2014-present, Facebook, Inc. -- license (MIT): https://github.com/babel/babel/blob/main/packages/babel-helpers/LICENSE */ var e, t, r = "function" == typeof Symbol ? Symbol : {}, n = r.iterator || "@@iterator", o = r.toStringTag || "@@toStringTag"; function i(r, n, o, i) { var c = n && n.prototype instanceof Generator ? n : Generator, u = Object.create(c.prototype); return _regeneratorDefine2(u, "_invoke", function (r, n, o) { var i, c, u, f = 0, p = o || [], y = !1, G = { p: 0, n: 0, v: e, a: d, f: d.bind(e, 4), d: function d(t, r) { return i = t, c = 0, u = e, G.n = r, a; } }; function d(r, n) { for (c = r, u = n, t = 0; !y && f && !o && t < p.length; t++) { var o, i = p[t], d = G.p, l = i[2]; r > 3 ? (o = l === n) && (u = i[(c = i[4]) ? 5 : (c = 3, 3)], i[4] = i[5] = e) : i[0] <= d && ((o = r < 2 && d < i[1]) ? (c = 0, G.v = n, G.n = i[1]) : d < l && (o = r < 3 || i[0] > n || n > l) && (i[4] = r, i[5] = n, G.n = l, c = 0)); } if (o || r > 1) return a; throw y = !0, n; } return function (o, p, l) { if (f > 1) throw TypeError("Generator is already running"); for (y && 1 === p && d(p, l), c = p, u = l; (t = c < 2 ? e : u) || !y;) { i || (c ? c < 3 ? (c > 1 && (G.n = -1), d(c, u)) : G.n = u : G.v = u); try { if (f = 2, i) { if (c || (o = "next"), t = i[o]) { if (!(t = t.call(i, u))) throw TypeError("iterator result is not an object"); if (!t.done) return t; u = t.value, c < 2 && (c = 0); } else 1 === c && (t = i["return"]) && t.call(i), c < 2 && (u = TypeError("The iterator does not provide a '" + o + "' method"), c = 1); i = e; } else if ((t = (y = G.n < 0) ? u : r.call(n, G)) !== a) break; } catch (t) { i = e, c = 1, u = t; } finally { f = 1; } } return { value: t, done: y }; }; }(r, o, i), !0), u; } var a = {}; function Generator() {} function GeneratorFunction() {} function GeneratorFunctionPrototype() {} t = Object.getPrototypeOf; var c = [][n] ? t(t([][n]())) : (_regeneratorDefine2(t = {}, n, function () { return this; }), t), u = GeneratorFunctionPrototype.prototype = Generator.prototype = Object.create(c); function f(e) { return Object.setPrototypeOf ? Object.setPrototypeOf(e, GeneratorFunctionPrototype) : (e.__proto__ = GeneratorFunctionPrototype, _regeneratorDefine2(e, o, "GeneratorFunction")), e.prototype = Object.create(u), e; } return GeneratorFunction.prototype = GeneratorFunctionPrototype, _regeneratorDefine2(u, "constructor", GeneratorFunctionPrototype), _regeneratorDefine2(GeneratorFunctionPrototype, "constructor", GeneratorFunction), GeneratorFunction.displayName = "GeneratorFunction", _regeneratorDefine2(GeneratorFunctionPrototype, o, "GeneratorFunction"), _regeneratorDefine2(u), _regeneratorDefine2(u, o, "Generator"), _regeneratorDefine2(u, n, function () { return this; }), _regeneratorDefine2(u, "toString", function () { return "[object Generator]"; }), (_regenerator = function _regenerator() { return { w: i, m: f }; })(); }
-function _regeneratorDefine2(e, r, n, t) { var i = Object.defineProperty; try { i({}, "", {}); } catch (e) { i = 0; } _regeneratorDefine2 = function _regeneratorDefine(e, r, n, t) { function o(r, n) { _regeneratorDefine2(e, r, function (e) { return this._invoke(r, n, e); }); } r ? i ? i(e, r, { value: n, enumerable: !t, configurable: !t, writable: !t }) : e[r] = n : (o("next", 0), o("throw", 1), o("return", 2)); }, _regeneratorDefine2(e, r, n, t); }
 function _toConsumableArray(r) { return _arrayWithoutHoles(r) || _iterableToArray(r) || _unsupportedIterableToArray(r) || _nonIterableSpread(); }
 function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
 function _iterableToArray(r) { if ("undefined" != typeof Symbol && null != r[Symbol.iterator] || null != r["@@iterator"]) return Array.from(r); }
 function _arrayWithoutHoles(r) { if (Array.isArray(r)) return _arrayLikeToArray(r); }
+function _regenerator() { /*! regenerator-runtime -- Copyright (c) 2014-present, Facebook, Inc. -- license (MIT): https://github.com/babel/babel/blob/main/packages/babel-helpers/LICENSE */ var e, t, r = "function" == typeof Symbol ? Symbol : {}, n = r.iterator || "@@iterator", o = r.toStringTag || "@@toStringTag"; function i(r, n, o, i) { var c = n && n.prototype instanceof Generator ? n : Generator, u = Object.create(c.prototype); return _regeneratorDefine2(u, "_invoke", function (r, n, o) { var i, c, u, f = 0, p = o || [], y = !1, G = { p: 0, n: 0, v: e, a: d, f: d.bind(e, 4), d: function d(t, r) { return i = t, c = 0, u = e, G.n = r, a; } }; function d(r, n) { for (c = r, u = n, t = 0; !y && f && !o && t < p.length; t++) { var o, i = p[t], d = G.p, l = i[2]; r > 3 ? (o = l === n) && (u = i[(c = i[4]) ? 5 : (c = 3, 3)], i[4] = i[5] = e) : i[0] <= d && ((o = r < 2 && d < i[1]) ? (c = 0, G.v = n, G.n = i[1]) : d < l && (o = r < 3 || i[0] > n || n > l) && (i[4] = r, i[5] = n, G.n = l, c = 0)); } if (o || r > 1) return a; throw y = !0, n; } return function (o, p, l) { if (f > 1) throw TypeError("Generator is already running"); for (y && 1 === p && d(p, l), c = p, u = l; (t = c < 2 ? e : u) || !y;) { i || (c ? c < 3 ? (c > 1 && (G.n = -1), d(c, u)) : G.n = u : G.v = u); try { if (f = 2, i) { if (c || (o = "next"), t = i[o]) { if (!(t = t.call(i, u))) throw TypeError("iterator result is not an object"); if (!t.done) return t; u = t.value, c < 2 && (c = 0); } else 1 === c && (t = i["return"]) && t.call(i), c < 2 && (u = TypeError("The iterator does not provide a '" + o + "' method"), c = 1); i = e; } else if ((t = (y = G.n < 0) ? u : r.call(n, G)) !== a) break; } catch (t) { i = e, c = 1, u = t; } finally { f = 1; } } return { value: t, done: y }; }; }(r, o, i), !0), u; } var a = {}; function Generator() {} function GeneratorFunction() {} function GeneratorFunctionPrototype() {} t = Object.getPrototypeOf; var c = [][n] ? t(t([][n]())) : (_regeneratorDefine2(t = {}, n, function () { return this; }), t), u = GeneratorFunctionPrototype.prototype = Generator.prototype = Object.create(c); function f(e) { return Object.setPrototypeOf ? Object.setPrototypeOf(e, GeneratorFunctionPrototype) : (e.__proto__ = GeneratorFunctionPrototype, _regeneratorDefine2(e, o, "GeneratorFunction")), e.prototype = Object.create(u), e; } return GeneratorFunction.prototype = GeneratorFunctionPrototype, _regeneratorDefine2(u, "constructor", GeneratorFunctionPrototype), _regeneratorDefine2(GeneratorFunctionPrototype, "constructor", GeneratorFunction), GeneratorFunction.displayName = "GeneratorFunction", _regeneratorDefine2(GeneratorFunctionPrototype, o, "GeneratorFunction"), _regeneratorDefine2(u), _regeneratorDefine2(u, o, "Generator"), _regeneratorDefine2(u, n, function () { return this; }), _regeneratorDefine2(u, "toString", function () { return "[object Generator]"; }), (_regenerator = function _regenerator() { return { w: i, m: f }; })(); }
+function _regeneratorDefine2(e, r, n, t) { var i = Object.defineProperty; try { i({}, "", {}); } catch (e) { i = 0; } _regeneratorDefine2 = function _regeneratorDefine(e, r, n, t) { function o(r, n) { _regeneratorDefine2(e, r, function (e) { return this._invoke(r, n, e); }); } r ? i ? i(e, r, { value: n, enumerable: !t, configurable: !t, writable: !t }) : e[r] = n : (o("next", 0), o("throw", 1), o("return", 2)); }, _regeneratorDefine2(e, r, n, t); }
 function asyncGeneratorStep(n, t, e, r, o, a, c) { try { var i = n[a](c), u = i.value; } catch (n) { return void e(n); } i.done ? t(u) : Promise.resolve(u).then(r, o); }
 function _asyncToGenerator(n) { return function () { var t = this, e = arguments; return new Promise(function (r, o) { var a = n.apply(t, e); function _next(n) { asyncGeneratorStep(a, r, o, _next, _throw, "next", n); } function _throw(n) { asyncGeneratorStep(a, r, o, _next, _throw, "throw", n); } _next(void 0); }); }; }
 function _slicedToArray(r, e) { return _arrayWithHoles(r) || _iterableToArrayLimit(r, e) || _unsupportedIterableToArray(r, e) || _nonIterableRest(); }
@@ -35548,6 +35548,10 @@ var App = function App() {
     _useState6 = _slicedToArray(_useState5, 2),
     loading = _useState6[0],
     setLoading = _useState6[1];
+  var _useState7 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)('1.0.0'),
+    _useState8 = _slicedToArray(_useState7, 2),
+    appVersion = _useState8[0],
+    setAppVersion = _useState8[1];
 
   // 加载最近的仓库列表
   (0,react__WEBPACK_IMPORTED_MODULE_0__.useEffect)(function () {
@@ -35562,6 +35566,46 @@ var App = function App() {
         setRecentRepos([]);
       }
     }
+
+    // 获取应用版本信息
+    var fetchAppVersion = /*#__PURE__*/function () {
+      var _ref = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee() {
+        var appInfo, _t;
+        return _regenerator().w(function (_context) {
+          while (1) switch (_context.p = _context.n) {
+            case 0:
+              _context.p = 0;
+              if (!(window.electronAPI && window.electronAPI.getAppInfo)) {
+                _context.n = 2;
+                break;
+              }
+              _context.n = 1;
+              return window.electronAPI.getAppInfo();
+            case 1:
+              appInfo = _context.v;
+              setAppVersion(appInfo.version);
+              _context.n = 3;
+              break;
+            case 2:
+              setAppVersion('1.0.0'); // 默认版本
+            case 3:
+              _context.n = 5;
+              break;
+            case 4:
+              _context.p = 4;
+              _t = _context.v;
+              console.error('获取应用版本失败:', _t);
+              setAppVersion('1.0.0'); // 默认版本
+            case 5:
+              return _context.a(2);
+          }
+        }, _callee, null, [[0, 4]]);
+      }));
+      return function fetchAppVersion() {
+        return _ref.apply(this, arguments);
+      };
+    }();
+    fetchAppVersion();
     setLoading(false);
 
     // 监听主进程发送的仓库选择事件
@@ -35595,50 +35639,50 @@ var App = function App() {
     };
   }, []);
   var handleOpenRepository = /*#__PURE__*/function () {
-    var _ref = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee(repoPath) {
-      var isValidRepo, result, _result, repoName, newRepo, exists, updatedList, _t;
-      return _regenerator().w(function (_context) {
-        while (1) switch (_context.p = _context.n) {
+    var _ref2 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee2(repoPath) {
+      var isValidRepo, result, _result, repoName, newRepo, exists, updatedList, _t2;
+      return _regenerator().w(function (_context2) {
+        while (1) switch (_context2.p = _context2.n) {
           case 0:
-            _context.p = 0;
-            _context.n = 1;
+            _context2.p = 0;
+            _context2.n = 1;
             return _utils_gitAPI__WEBPACK_IMPORTED_MODULE_3__["default"].isGitRepository(repoPath);
           case 1:
-            isValidRepo = _context.v;
+            isValidRepo = _context2.v;
             if (isValidRepo) {
-              _context.n = 4;
+              _context2.n = 4;
               break;
             }
             result = window.confirm('所选目录不是Git仓库，是否要初始化为Git仓库？');
             if (!result) {
-              _context.n = 3;
+              _context2.n = 3;
               break;
             }
-            _context.n = 2;
+            _context2.n = 2;
             return handleInitializeRepository(repoPath);
           case 2:
-            return _context.a(2);
+            return _context2.a(2);
           case 3:
             alert('请选择一个有效的Git仓库目录');
-            return _context.a(2);
+            return _context2.a(2);
           case 4:
-            _context.n = 8;
+            _context2.n = 8;
             break;
           case 5:
-            _context.p = 5;
-            _t = _context.v;
-            console.error('验证仓库失败:', _t);
+            _context2.p = 5;
+            _t2 = _context2.v;
+            console.error('验证仓库失败:', _t2);
             _result = window.confirm('无法验证仓库，是否尝试初始化为Git仓库？');
             if (!_result) {
-              _context.n = 7;
+              _context2.n = 7;
               break;
             }
-            _context.n = 6;
+            _context2.n = 6;
             return handleInitializeRepository(repoPath);
           case 6:
-            return _context.a(2);
+            return _context2.a(2);
           case 7:
-            return _context.a(2);
+            return _context2.a(2);
           case 8:
             // 添加到最近仓库列表
             repoName = repoPath.split(/[\/\\]/).pop();
@@ -35658,25 +35702,25 @@ var App = function App() {
             }
             setCurrentRepo(newRepo);
           case 9:
-            return _context.a(2);
+            return _context2.a(2);
         }
-      }, _callee, null, [[0, 5]]);
+      }, _callee2, null, [[0, 5]]);
     }));
     return function handleOpenRepository(_x) {
-      return _ref.apply(this, arguments);
+      return _ref2.apply(this, arguments);
     };
   }();
   var handleInitializeRepository = /*#__PURE__*/function () {
-    var _ref2 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee2(repoPath) {
-      var result, repoName, newRepo, updatedList, _t2;
-      return _regenerator().w(function (_context2) {
-        while (1) switch (_context2.p = _context2.n) {
+    var _ref3 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee3(repoPath) {
+      var result, repoName, newRepo, updatedList, _t3;
+      return _regenerator().w(function (_context3) {
+        while (1) switch (_context3.p = _context3.n) {
           case 0:
-            _context2.p = 0;
-            _context2.n = 1;
+            _context3.p = 0;
+            _context3.n = 1;
             return _utils_gitAPI__WEBPACK_IMPORTED_MODULE_3__["default"].init(repoPath);
           case 1:
-            result = _context2.v;
+            result = _context3.v;
             if (result.success) {
               // 添加新初始化的仓库到最近列表
               repoName = repoPath.split(/[\/\\]/).pop();
@@ -35694,20 +35738,20 @@ var App = function App() {
             } else {
               alert('仓库初始化失败: ' + result.error);
             }
-            _context2.n = 3;
+            _context3.n = 3;
             break;
           case 2:
-            _context2.p = 2;
-            _t2 = _context2.v;
-            console.error('初始化仓库失败:', _t2);
-            alert('初始化仓库失败: ' + _t2.message);
+            _context3.p = 2;
+            _t3 = _context3.v;
+            console.error('初始化仓库失败:', _t3);
+            alert('初始化仓库失败: ' + _t3.message);
           case 3:
-            return _context2.a(2);
+            return _context3.a(2);
         }
-      }, _callee2, null, [[0, 2]]);
+      }, _callee3, null, [[0, 2]]);
     }));
     return function handleInitializeRepository(_x2) {
-      return _ref2.apply(this, arguments);
+      return _ref3.apply(this, arguments);
     };
   }();
   return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", {
@@ -35732,7 +35776,7 @@ var App = function App() {
     style: {
       marginLeft: 'auto'
     }
-  }, "Git GUI v1.0.0")));
+  }, "Git GUI v", appVersion)));
 };
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (App);
 

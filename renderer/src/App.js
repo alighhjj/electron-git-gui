@@ -7,6 +7,7 @@ const App = () => {
   const [currentRepo, setCurrentRepo] = useState(null);
   const [recentRepos, setRecentRepos] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [appVersion, setAppVersion] = useState('1.0.0');
 
   // 加载最近的仓库列表
   useEffect(() => {
@@ -21,6 +22,24 @@ const App = () => {
         setRecentRepos([]);
       }
     }
+    
+    // 获取应用版本信息
+    const fetchAppVersion = async () => {
+      try {
+        if (window.electronAPI && window.electronAPI.getAppInfo) {
+          const appInfo = await window.electronAPI.getAppInfo();
+          setAppVersion(appInfo.version);
+        } else {
+          setAppVersion('1.0.0'); // 默认版本
+        }
+      } catch (error) {
+        console.error('获取应用版本失败:', error);
+        setAppVersion('1.0.0'); // 默认版本
+      }
+    };
+    
+    fetchAppVersion();
+    
     setLoading(false);
 
     // 监听主进程发送的仓库选择事件
@@ -152,7 +171,7 @@ const App = () => {
       <div className="status-bar">
         <span>{currentRepo ? `仓库: ${currentRepo.name}` : '请选择一个仓库'}</span>
         <span style={{ marginLeft: 'auto' }}>
-          Git GUI v1.0.0
+          Git GUI v{appVersion}
         </span>
       </div>
     </div>
