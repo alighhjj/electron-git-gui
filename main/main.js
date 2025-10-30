@@ -276,6 +276,51 @@ ipcMain.handle('open-file-dialog', async () => {
   return { success: false, path: null };
 });
 
+// IPC处理程序 - 确保 .gitignore 文件中包含 node_modules/
+ipcMain.handle('ensure-node-modules-gitignore', async (event, repoPath) => {
+  try {
+    const fs = require('fs');
+    const gitignorePath = `${repoPath}/.gitignore`;
+    
+    // Check if .gitignore exists in the repository
+    const fileExists = fs.existsSync(gitignorePath);
+    
+    // Case 1: If .gitignore doesn't exist, create it and add node_modules/
+    if (!fileExists) {
+      fs.writeFileSync(gitignorePath, 'node_modules/\n');
+      console.log(`Created .gitignore file with node_modules/ in ${repoPath}`);
+      return { success: true, modified: true }; // File was created
+    }
+    
+    // Case 2 & 3: If .gitignore exists, check if it contains node_modules/
+    const gitignoreContent = fs.readFileSync(gitignorePath, 'utf8');
+    const lines = gitignoreContent.split('\n');
+    
+    // Check if node_modules/ is already in the file (could be exact match or in a pattern)
+    const hasNodeModules = lines.some(line => 
+      line.trim() === 'node_modules/' || 
+      line.trim() === 'node_modules' || 
+      line.trim().startsWith('node_modules/')
+    );
+    
+    if (!hasNodeModules) {
+      // Append node_modules/ to the .gitignore file
+      if (!gitignoreContent.endsWith('\n')) {
+        fs.appendFileSync(gitignorePath, '\n');
+      }
+      fs.appendFileSync(gitignorePath, 'node_modules/\n');
+      console.log(`Added node_modules/ to .gitignore in ${repoPath}`);
+      return { success: true, modified: true }; // File was modified
+    }
+    
+    console.log(`node_modules/ already exists in .gitignore in ${repoPath}`);
+    return { success: true, modified: false }; // File was not modified
+  } catch (error) {
+    console.error('Error handling .gitignore:', error);
+    return { success: false, error: error.message };
+  }
+});
+
 // IPC处理程序 - 打开文件夹对话框
 ipcMain.handle('open-folder-dialog', async () => {
   const result = await dialog.showOpenDialog(mainWindow, {

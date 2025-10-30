@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import ProjectPanel from './components/ProjectPanel';
 import WelcomePage from './components/WelcomePage';
 import gitAPI from '../utils/gitAPI';
+import { ensureNodeModulesInGitignore } from '../utils/gitignoreHelper';
 
 const App = () => {
   const [currentRepo, setCurrentRepo] = useState(null);
@@ -75,6 +76,14 @@ const App = () => {
   }, []);
 
   const handleOpenRepository = async (repoPath) => {
+    // 首先确保 .gitignore 包含 node_modules/
+    try {
+      await ensureNodeModulesInGitignore(repoPath);
+    } catch (error) {
+      console.error('处理 .gitignore 文件时出错:', error);
+      // 即使 .gitignore 处理失败，也继续处理仓库打开操作
+    }
+
     // 验证是否为有效的 Git 仓库
     try {
       const isValidRepo = await gitAPI.isGitRepository(repoPath);
@@ -119,10 +128,52 @@ const App = () => {
     setCurrentRepo(newRepo);
   };
 
+  // 处理从最近项目列表中选择的仓库
+  const handleRecentRepoSelect = async (repo) => {
+    // 首先确保 .gitignore 包含 node_modules/
+    try {
+      await ensureNodeModulesInGitignore(repo.path);
+    } catch (error) {
+      console.error('处理 .gitignore 文件时出错:', error);
+      // 即使 .gitignore 处理失败，也继续处理仓库打开操作
+    }
+
+    // 验证是否为有效的 Git 仓库
+    try {
+      const isValidRepo = await gitAPI.isGitRepository(repo.path);
+      if (!isValidRepo) {
+        alert('所选目录不再是有效的Git仓库');
+        // 从最近仓库列表中移除这个项目
+        const updatedList = recentRepos.filter(r => r.path !== repo.path);
+        setRecentRepos(updatedList);
+        localStorage.setItem('gitRepos', JSON.stringify(updatedList));
+        return;
+      }
+    } catch (error) {
+      console.error('验证仓库失败:', error);
+      alert('无法验证仓库的有效性');
+      // 从最近仓库列表中移除这个项目
+      const updatedList = recentRepos.filter(r => r.path !== repo.path);
+      setRecentRepos(updatedList);
+      localStorage.setItem('gitRepos', JSON.stringify(updatedList));
+      return;
+    }
+
+    setCurrentRepo(repo);
+  };
+
   const handleInitializeRepository = async (repoPath) => {
     try {
       const result = await gitAPI.init(repoPath);
       if (result.success) {
+        // 仓库初始化成功后，确保 .gitignore 包含 node_modules/
+        try {
+          await ensureNodeModulesInGitignore(repoPath);
+        } catch (error) {
+          console.error('处理 .gitignore 文件时出错:', error);
+          // 即使 .gitignore 处理失败，也继续流程
+        }
+
         // 添加新初始化的仓库到最近列表
         const repoName = repoPath.split(/[\/\\]/).pop();
         const newRepo = {
@@ -162,7 +213,7 @@ const App = () => {
           <WelcomePage 
             recentRepos={recentRepos}
             onOpenRepository={handleOpenRepository}
-            onRepoSelect={(repo) => setCurrentRepo(repo)}
+            onRepoSelect={handleRecentRepoSelect}
           />
         )}
       </div>

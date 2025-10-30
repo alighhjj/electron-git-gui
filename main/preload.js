@@ -19,5 +19,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
   onRepositorySelected: (callback) => ipcRenderer.on('repository-selected', (event, repoPath) => callback(repoPath)),
   
   // 监听仓库初始化事件
-  onInitializeRepository: (callback) => ipcRenderer.on('initialize-repository', (event, repoPath) => callback(repoPath))
+  onInitializeRepository: (callback) => ipcRenderer.on('initialize-repository', (event, repoPath) => callback(repoPath)),
+  
+  // Handle .gitignore operations
+  ensureNodeModulesInGitignore: (repoPath) => ipcRenderer.invoke('ensure-node-modules-gitignore', repoPath)
 });
