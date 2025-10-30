@@ -80,7 +80,6 @@
       "oneClick": false,
       "allowToChangeInstallationDirectory": true,
       "differentialPackage": false,
-      "includeMinimumSystemFiles": true,
       "warningsAsErrors": false
     },
     "portable": {
