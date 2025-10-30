@@ -1,6 +1,6 @@
 {
   "name": "electron-git-gui",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "基于Electron的Git图形界面工具",
   "main": "main/main.js",
   "scripts": {
