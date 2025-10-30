@@ -55,11 +55,18 @@
     ],
     "win": {
       "target": [
-        "nsis",
-        "zip"
+        {
+          "target": "nsis",
+          "arch": ["x64"]
+        },
+        {
+          "target": "zip",
+          "arch": ["x64"]
+        }
       ],
       "icon": "assets/icon.ico",
-      "publisherName": "Electron Git GUI Team"
+      "publisherName": "Electron Git GUI Team",
+      "verifyUpdateCodeSignature": false
     },
     "mac": {
       "target": "dmg",
@@ -71,7 +78,13 @@
     },
     "nsis": {
       "oneClick": false,
-      "allowToChangeInstallationDirectory": true
+      "allowToChangeInstallationDirectory": true,
+      "differentialPackage": false,
+      "includeMinimumSystemFiles": true,
+      "warningsAsErrors": false
+    },
+    "portable": {
+      "unpackDirName": "ElectronGitGUI"
     }
   }
 }
