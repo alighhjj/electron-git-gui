@@ -200,6 +200,51 @@ ipcMain.handle('git-operation', async (event, operation, repoPath, ...args) => {
         // 使用raw方法执行原生git rev-list命令
         result = await git.raw(['rev-list', ...args]);
         break;
+      case 'tag':
+        // 处理标签操作
+        if (args && args.length > 0) {
+          // 如果有参数，可能是创建标签或列出特定标签
+          if (args[0].startsWith('-')) {
+            // 参数以'-'开头，可能是列出标签的选项
+            result = await git.tag(args);
+          } else {
+            // 第一个参数不是选项，可能是标签名称，执行默认标签操作
+            result = await git.tag(args);
+          }
+        } else {
+          // 没有参数，列出所有标签
+          result = await git.tag(['-l']);
+        }
+        break;
+      case 'tag-list':
+        // 专门列出所有标签
+        result = await git.tag(['-l']);
+        break;
+      case 'tag-create':
+        // 创建标签 - args[0] 是标签名称, args[1] 是可选的注释
+        if (args.length >= 1) {
+          if (args[1]) {
+            // 带注释的标签
+            result = await git.addAnnotatedTag(args[0], args[1]);
+          } else {
+            // 简单标签
+            result = await git.addTag(args[0]);
+          }
+        } else {
+          throw new Error('创建标签需要指定标签名称');
+        }
+        break;
+      case 'tag-push':
+        // 推送标签到远程 - args[0] 是远程名称(默认origin), args[1] 是标签名称(如果为空则推送所有标签)
+        const remote = args[0] || 'origin';
+        if (args[1]) {
+          // 推送特定标签
+          result = await git.pushTags(remote, args[1]);
+        } else {
+          // 推送所有标签
+          result = await git.pushTags(remote);
+        }
+        break;
       default:
         throw new Error(`不支持的Git操作: ${operation}`);
     }

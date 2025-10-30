@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import PropTypes from 'prop-types';
 import gitAPI from '../../utils/gitAPI';
 import FileDiff from './FileDiff';
@@ -30,7 +30,25 @@ const FileChanges = ({ currentRepo }) => {
     return () => clearTimeout(timer);
   }, [currentRepo]);
 
-  const fetchRepoStatus = async () => {
+  // 监听提交完成事件
+  useEffect(() => {
+    const handleGitCommitCompleted = () => {
+      console.log('收到提交完成事件，刷新状态');
+      if (currentRepo) {
+        fetchRepoStatus();
+      }
+    };
+
+    // 添加事件监听器
+    window.addEventListener('git-commit-completed', handleGitCommitCompleted);
+
+    // 清理事件监听器
+    return () => {
+      window.removeEventListener('git-commit-completed', handleGitCommitCompleted);
+    };
+  }, [currentRepo, fetchRepoStatus]);
+
+  const fetchRepoStatus = useCallback(async () => {
     if (!currentRepo) return;
     
     setLoading(true);
@@ -117,7 +135,7 @@ const FileChanges = ({ currentRepo }) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [currentRepo]);
 
   const handleUnstagedFileToggle = (filePath) => {
     setSelectedUnstagedFiles(prev => 

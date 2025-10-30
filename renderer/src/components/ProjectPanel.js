@@ -4,6 +4,7 @@ import FileChanges from './FileChanges';
 import CommitHistory from './CommitHistory';
 import GitHubPanel from './GitHubPanel';
 import SSHConfigModal from './SSHConfigModal';
+import TagPushModal from './TagPushModal';
 import gitAPI from '../../utils/gitAPI';
 import notificationService from '../../utils/notification';
 
@@ -18,6 +19,7 @@ const ProjectPanel = ({ currentRepo }) => {
   const [currentBranch, setCurrentBranch] = useState('');
   const [hasUnpushedCommits, setHasUnpushedCommits] = useState(false);
   const [showSSHConfig, setShowSSHConfig] = useState(false);
+  const [showTagPushModal, setShowTagPushModal] = useState(false);
 
   // 获取仓库信息
   useEffect(() => {
@@ -250,6 +252,9 @@ const ProjectPanel = ({ currentRepo }) => {
         setCommitMessage(''); // 清空提交信息
         // 在提交后刷新仓库信息以更新推送按钮状态
         await fetchRepoInfo();
+        
+        // 提交成功后，触发自定义事件以通知其他组件（如FileChanges）刷新
+        window.dispatchEvent(new CustomEvent('git-commit-completed'));
       } else {
         alert('提交失败: ' + commitResult.error);
       }
@@ -327,6 +332,13 @@ const ProjectPanel = ({ currentRepo }) => {
             title="拉取远程更新"
           >
             {pullPushLoading.pull ? '拉取中...' : '拉取'}
+          </button>
+          <button 
+            className="btn btn-warning"
+            onClick={() => setShowTagPushModal(true)}
+            title="推送标签"
+          >
+            推送标签
           </button>
           <button 
             className={`btn ${hasUnpushedCommits ? 'btn-success' : 'btn-default'}`} 
@@ -434,6 +446,18 @@ const ProjectPanel = ({ currentRepo }) => {
         isOpen={showSSHConfig}
         onClose={() => setShowSSHConfig(false)}
         onSSHKeyGenerated={handleSSHKeyGenerated}
+      />
+    )}
+    
+    {/* 标签推送模态框 */}
+    {showTagPushModal && (
+      <TagPushModal
+        currentRepo={currentRepo}
+        isOpen={showTagPushModal}
+        onClose={() => setShowTagPushModal(false)}
+        onTagPushed={(tagName) => {
+          notificationService.success(`标签 ${tagName} 推送成功`);
+        }}
       />
     )}
   </>

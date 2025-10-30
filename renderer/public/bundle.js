@@ -35903,119 +35903,132 @@ var FileChanges = function FileChanges(_ref) {
       return clearTimeout(timer);
     };
   }, [currentRepo]);
-  var fetchRepoStatus = /*#__PURE__*/function () {
-    var _ref2 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee() {
-      var result, status, staged, unstaged, uniqueUnstaged;
-      return _regenerator().w(function (_context) {
-        while (1) switch (_context.p = _context.n) {
-          case 0:
-            if (currentRepo) {
-              _context.n = 1;
-              break;
-            }
-            return _context.a(2);
-          case 1:
-            setLoading(true);
-            _context.p = 2;
-            _context.n = 3;
-            return _utils_gitAPI__WEBPACK_IMPORTED_MODULE_2__["default"].getStatus(currentRepo.path);
-          case 3:
-            result = _context.v;
-            if (result.success) {
-              setRepoStatus(result.data);
 
-              // 根据status结果将文件分类为已暂存和未暂存
-              status = result.data;
-              console.log('Git status result:', status); // 调试信息
-
-              // 根据simple-git的status响应格式进行文件分类
-              // 在simple-git中，status.files数组包含了index和working_dir状态
-              // index: 暂存区状态 ('A'=新增, 'M'=修改, 'D'=删除)
-              // working_dir: 工作目录状态 ('M'=修改, 'D'=删除, '?'=未跟踪)
-
-              // 已暂存文件：在index中有状态且在工作目录中无更改的文件
-              staged = status.files.filter(function (file) {
-                return file.index !== ' ' && file.index !== undefined && file.working_dir === ' ';
-              }).map(function (file) {
-                return {
-                  path: file.path,
-                  status: 'staged',
-                  index: file.index,
-                  working_dir: file.working_dir
-                };
-              }); // 未暂存文件：在工作目录中有更改的文件，或者单独列出的修改/新增/删除文件
-              unstaged = [].concat(_toConsumableArray(status.files.filter(function (file) {
-                return file.working_dir !== ' ' && file.working_dir !== undefined;
-              }).map(function (file) {
-                return {
-                  path: file.path,
-                  status: 'unstaged',
-                  index: file.index,
-                  working_dir: file.working_dir
-                };
-              })), _toConsumableArray(status.modified.filter(function (path) {
-                return !status.files.some(function (f) {
-                  return f.path === path && f.index !== ' ';
-                });
-              }).map(function (path) {
-                return {
-                  path: path,
-                  status: 'modified',
-                  index: ' ',
-                  working_dir: 'M'
-                };
-              })), _toConsumableArray(status.created.filter(function (path) {
-                return !status.files.some(function (f) {
-                  return f.path === path && f.index !== ' ';
-                });
-              }).map(function (path) {
-                return {
-                  path: path,
-                  status: 'created',
-                  index: ' ',
-                  working_dir: 'A'
-                };
-              })), _toConsumableArray(status.deleted.filter(function (path) {
-                return !status.files.some(function (f) {
-                  return f.path === path && f.index !== ' ';
-                });
-              }).map(function (path) {
-                return {
-                  path: path,
-                  status: 'deleted',
-                  index: ' ',
-                  working_dir: 'D'
-                };
-              })));
-              console.log('Staged files:', staged); // 调试信息
-              console.log('Unstaged files:', unstaged); // 调试信息
-
-              // 去除重复的文件
-              uniqueUnstaged = unstaged.filter(function (file, index, self) {
-                return index === self.findIndex(function (f) {
-                  return f.path === file.path;
-                });
-              });
-              setUnstagedFiles(uniqueUnstaged);
-              setStagedFiles(staged);
-
-              // 清空选择状态
-              setSelectedUnstagedFiles([]);
-              setSelectedStagedFiles([]);
-            }
-          case 4:
-            _context.p = 4;
-            setLoading(false);
-            return _context.f(4);
-          case 5:
-            return _context.a(2);
-        }
-      }, _callee, null, [[2,, 4, 5]]);
-    }));
-    return function fetchRepoStatus() {
-      return _ref2.apply(this, arguments);
+  // 监听提交完成事件
+  (0,react__WEBPACK_IMPORTED_MODULE_0__.useEffect)(function () {
+    var handleGitCommitCompleted = function handleGitCommitCompleted() {
+      console.log('收到提交完成事件，刷新状态');
+      if (currentRepo) {
+        fetchRepoStatus();
+      }
     };
-  }();
+
+    // 添加事件监听器
+    window.addEventListener('git-commit-completed', handleGitCommitCompleted);
+
+    // 清理事件监听器
+    return function () {
+      window.removeEventListener('git-commit-completed', handleGitCommitCompleted);
+    };
+  }, [currentRepo, fetchRepoStatus]);
+  var fetchRepoStatus = (0,react__WEBPACK_IMPORTED_MODULE_0__.useCallback)(/*#__PURE__*/_asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee() {
+    var result, status, staged, unstaged, uniqueUnstaged;
+    return _regenerator().w(function (_context) {
+      while (1) switch (_context.p = _context.n) {
+        case 0:
+          if (currentRepo) {
+            _context.n = 1;
+            break;
+          }
+          return _context.a(2);
+        case 1:
+          setLoading(true);
+          _context.p = 2;
+          _context.n = 3;
+          return _utils_gitAPI__WEBPACK_IMPORTED_MODULE_2__["default"].getStatus(currentRepo.path);
+        case 3:
+          result = _context.v;
+          if (result.success) {
+            setRepoStatus(result.data);
+
+            // 根据status结果将文件分类为已暂存和未暂存
+            status = result.data;
+            console.log('Git status result:', status); // 调试信息
+
+            // 根据simple-git的status响应格式进行文件分类
+            // 在simple-git中，status.files数组包含了index和working_dir状态
+            // index: 暂存区状态 ('A'=新增, 'M'=修改, 'D'=删除)
+            // working_dir: 工作目录状态 ('M'=修改, 'D'=删除, '?'=未跟踪)
+
+            // 已暂存文件：在index中有状态且在工作目录中无更改的文件
+            staged = status.files.filter(function (file) {
+              return file.index !== ' ' && file.index !== undefined && file.working_dir === ' ';
+            }).map(function (file) {
+              return {
+                path: file.path,
+                status: 'staged',
+                index: file.index,
+                working_dir: file.working_dir
+              };
+            }); // 未暂存文件：在工作目录中有更改的文件，或者单独列出的修改/新增/删除文件
+            unstaged = [].concat(_toConsumableArray(status.files.filter(function (file) {
+              return file.working_dir !== ' ' && file.working_dir !== undefined;
+            }).map(function (file) {
+              return {
+                path: file.path,
+                status: 'unstaged',
+                index: file.index,
+                working_dir: file.working_dir
+              };
+            })), _toConsumableArray(status.modified.filter(function (path) {
+              return !status.files.some(function (f) {
+                return f.path === path && f.index !== ' ';
+              });
+            }).map(function (path) {
+              return {
+                path: path,
+                status: 'modified',
+                index: ' ',
+                working_dir: 'M'
+              };
+            })), _toConsumableArray(status.created.filter(function (path) {
+              return !status.files.some(function (f) {
+                return f.path === path && f.index !== ' ';
+              });
+            }).map(function (path) {
+              return {
+                path: path,
+                status: 'created',
+                index: ' ',
+                working_dir: 'A'
+              };
+            })), _toConsumableArray(status.deleted.filter(function (path) {
+              return !status.files.some(function (f) {
+                return f.path === path && f.index !== ' ';
+              });
+            }).map(function (path) {
+              return {
+                path: path,
+                status: 'deleted',
+                index: ' ',
+                working_dir: 'D'
+              };
+            })));
+            console.log('Staged files:', staged); // 调试信息
+            console.log('Unstaged files:', unstaged); // 调试信息
+
+            // 去除重复的文件
+            uniqueUnstaged = unstaged.filter(function (file, index, self) {
+              return index === self.findIndex(function (f) {
+                return f.path === file.path;
+              });
+            });
+            setUnstagedFiles(uniqueUnstaged);
+            setStagedFiles(staged);
+
+            // 清空选择状态
+            setSelectedUnstagedFiles([]);
+            setSelectedStagedFiles([]);
+          }
+        case 4:
+          _context.p = 4;
+          setLoading(false);
+          return _context.f(4);
+        case 5:
+          return _context.a(2);
+      }
+    }, _callee, null, [[2,, 4, 5]]);
+  })), [currentRepo]);
   var handleUnstagedFileToggle = function handleUnstagedFileToggle(filePath) {
     setSelectedUnstagedFiles(function (prev) {
       return prev.includes(filePath) ? prev.filter(function (file) {
@@ -37429,8 +37442,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _CommitHistory__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./CommitHistory */ "./renderer/src/components/CommitHistory.js");
 /* harmony import */ var _GitHubPanel__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./GitHubPanel */ "./renderer/src/components/GitHubPanel.js");
 /* harmony import */ var _SSHConfigModal__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./SSHConfigModal */ "./renderer/src/components/SSHConfigModal.js");
-/* harmony import */ var _utils_gitAPI__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../../utils/gitAPI */ "./renderer/utils/gitAPI.js");
-/* harmony import */ var _utils_notification__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../../utils/notification */ "./renderer/utils/notification.js");
+/* harmony import */ var _TagPushModal__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./TagPushModal */ "./renderer/src/components/TagPushModal.js");
+/* harmony import */ var _utils_gitAPI__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../../utils/gitAPI */ "./renderer/utils/gitAPI.js");
+/* harmony import */ var _utils_notification__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../../utils/notification */ "./renderer/utils/notification.js");
 function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
 function ownKeys(e, r) { var t = Object.keys(e); if (Object.getOwnPropertySymbols) { var o = Object.getOwnPropertySymbols(e); r && (o = o.filter(function (r) { return Object.getOwnPropertyDescriptor(e, r).enumerable; })), t.push.apply(t, o); } return t; }
 function _objectSpread(e) { for (var r = 1; r < arguments.length; r++) { var t = null != arguments[r] ? arguments[r] : {}; r % 2 ? ownKeys(Object(t), !0).forEach(function (r) { _defineProperty(e, r, t[r]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t)) : ownKeys(Object(t)).forEach(function (r) { Object.defineProperty(e, r, Object.getOwnPropertyDescriptor(t, r)); }); } return e; }
@@ -37447,6 +37461,7 @@ function _unsupportedIterableToArray(r, a) { if (r) { if ("string" == typeof r) 
 function _arrayLikeToArray(r, a) { (null == a || a > r.length) && (a = r.length); for (var e = 0, n = Array(a); e < a; e++) n[e] = r[e]; return n; }
 function _iterableToArrayLimit(r, l) { var t = null == r ? null : "undefined" != typeof Symbol && r[Symbol.iterator] || r["@@iterator"]; if (null != t) { var e, n, i, u, a = [], f = !0, o = !1; try { if (i = (t = t.call(r)).next, 0 === l) { if (Object(t) !== t) return; f = !1; } else for (; !(f = (e = i.call(t)).done) && (a.push(e.value), a.length !== l); f = !0); } catch (r) { o = !0, n = r; } finally { try { if (!f && null != t["return"] && (u = t["return"](), Object(u) !== u)) return; } finally { if (o) throw n; } } return a; } }
 function _arrayWithHoles(r) { if (Array.isArray(r)) return r; }
+
 
 
 
@@ -37500,6 +37515,10 @@ var ProjectPanel = function ProjectPanel(_ref) {
     _useState18 = _slicedToArray(_useState17, 2),
     showSSHConfig = _useState18[0],
     setShowSSHConfig = _useState18[1];
+  var _useState19 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(false),
+    _useState20 = _slicedToArray(_useState19, 2),
+    showTagPushModal = _useState20[0],
+    setShowTagPushModal = _useState20[1];
 
   // 获取仓库信息
   (0,react__WEBPACK_IMPORTED_MODULE_0__.useEffect)(function () {
@@ -37549,7 +37568,7 @@ var ProjectPanel = function ProjectPanel(_ref) {
             setLoading(true);
             _context.p = 2;
             _context.n = 3;
-            return _utils_gitAPI__WEBPACK_IMPORTED_MODULE_6__["default"].getCurrentBranch(currentRepo.path);
+            return _utils_gitAPI__WEBPACK_IMPORTED_MODULE_7__["default"].getCurrentBranch(currentRepo.path);
           case 3:
             branch = _context.v;
             setCurrentBranch(branch);
@@ -37558,7 +37577,7 @@ var ProjectPanel = function ProjectPanel(_ref) {
             remoteUrl = null;
             _context.p = 4;
             _context.n = 5;
-            return _utils_gitAPI__WEBPACK_IMPORTED_MODULE_6__["default"].executeGitOperation('remote', currentRepo.path, 'get-url', 'origin');
+            return _utils_gitAPI__WEBPACK_IMPORTED_MODULE_7__["default"].executeGitOperation('remote', currentRepo.path, 'get-url', 'origin');
           case 5:
             remoteResult = _context.v;
             if (remoteResult.success) {
@@ -37580,7 +37599,7 @@ var ProjectPanel = function ProjectPanel(_ref) {
             hasLocalCommits = false;
             _context.p = 8;
             _context.n = 9;
-            return _utils_gitAPI__WEBPACK_IMPORTED_MODULE_6__["default"].getLog(currentRepo.path);
+            return _utils_gitAPI__WEBPACK_IMPORTED_MODULE_7__["default"].getLog(currentRepo.path);
           case 9:
             logResult = _context.v;
             if (logResult.success && logResult.data && Array.isArray(logResult.data.all)) {
@@ -37595,7 +37614,7 @@ var ProjectPanel = function ProjectPanel(_ref) {
             // 如果获取提交历史失败，检查是否有工作目录更改作为备用
             _context.p = 11;
             _context.n = 12;
-            return _utils_gitAPI__WEBPACK_IMPORTED_MODULE_6__["default"].getStatus(currentRepo.path);
+            return _utils_gitAPI__WEBPACK_IMPORTED_MODULE_7__["default"].getStatus(currentRepo.path);
           case 12:
             _statusResult = _context.v;
             if (_statusResult.success && _statusResult.data) {
@@ -37621,7 +37640,7 @@ var ProjectPanel = function ProjectPanel(_ref) {
             }
             _context.p = 15;
             _context.n = 16;
-            return _utils_gitAPI__WEBPACK_IMPORTED_MODULE_6__["default"].executeGitOperation('rev-list', currentRepo.path, '--count', "origin/".concat(branch, "..HEAD"));
+            return _utils_gitAPI__WEBPACK_IMPORTED_MODULE_7__["default"].executeGitOperation('rev-list', currentRepo.path, '--count', "origin/".concat(branch, "..HEAD"));
           case 16:
             result = _context.v;
             if (result.success) {
@@ -37662,7 +37681,7 @@ var ProjectPanel = function ProjectPanel(_ref) {
 
             // 获取仓库状态
             _context.n = 23;
-            return _utils_gitAPI__WEBPACK_IMPORTED_MODULE_6__["default"].getStatus(currentRepo.path);
+            return _utils_gitAPI__WEBPACK_IMPORTED_MODULE_7__["default"].getStatus(currentRepo.path);
           case 23:
             statusResult = _context.v;
             if (statusResult.success) {
@@ -37706,7 +37725,7 @@ var ProjectPanel = function ProjectPanel(_ref) {
             });
             _context2.p = 2;
             _context2.n = 3;
-            return _utils_gitAPI__WEBPACK_IMPORTED_MODULE_6__["default"].executeGitOperation('remote', currentRepo.path, 'get-url', 'origin');
+            return _utils_gitAPI__WEBPACK_IMPORTED_MODULE_7__["default"].executeGitOperation('remote', currentRepo.path, 'get-url', 'origin');
           case 3:
             remoteUrlResult = _context2.v;
             protocolInfo = '';
@@ -37719,11 +37738,11 @@ var ProjectPanel = function ProjectPanel(_ref) {
               }
             }
             _context2.n = 4;
-            return _utils_gitAPI__WEBPACK_IMPORTED_MODULE_6__["default"].pull(currentRepo.path);
+            return _utils_gitAPI__WEBPACK_IMPORTED_MODULE_7__["default"].pull(currentRepo.path);
           case 4:
             result = _context2.v;
             if (result.success) {
-              _utils_notification__WEBPACK_IMPORTED_MODULE_7__["default"].success("\u62C9\u53D6\u6210\u529F".concat(protocolInfo));
+              _utils_notification__WEBPACK_IMPORTED_MODULE_8__["default"].success("\u62C9\u53D6\u6210\u529F".concat(protocolInfo));
               // 刷新界面
               fetchRepoInfo();
               if (activeTab === 'changes') {
@@ -37731,7 +37750,7 @@ var ProjectPanel = function ProjectPanel(_ref) {
               }
             } else {
               // 如果拉取失败，显示错误
-              _utils_notification__WEBPACK_IMPORTED_MODULE_7__["default"].error("\u62C9\u53D6\u5931\u8D25".concat(protocolInfo, ": ").concat(result.error));
+              _utils_notification__WEBPACK_IMPORTED_MODULE_8__["default"].error("\u62C9\u53D6\u5931\u8D25".concat(protocolInfo, ": ").concat(result.error));
             }
             _context2.n = 6;
             break;
@@ -37739,7 +37758,7 @@ var ProjectPanel = function ProjectPanel(_ref) {
             _context2.p = 5;
             _t6 = _context2.v;
             console.error('拉取失败:', _t6);
-            _utils_notification__WEBPACK_IMPORTED_MODULE_7__["default"].error('拉取失败: ' + _t6.message);
+            _utils_notification__WEBPACK_IMPORTED_MODULE_8__["default"].error('拉取失败: ' + _t6.message);
           case 6:
             _context2.p = 6;
             setPullPushLoading(function (prev) {
@@ -37776,7 +37795,7 @@ var ProjectPanel = function ProjectPanel(_ref) {
             });
             _context3.p = 2;
             _context3.n = 3;
-            return _utils_gitAPI__WEBPACK_IMPORTED_MODULE_6__["default"].executeGitOperation('get-remotes', currentRepo.path);
+            return _utils_gitAPI__WEBPACK_IMPORTED_MODULE_7__["default"].executeGitOperation('get-remotes', currentRepo.path);
           case 3:
             remotesResult = _context3.v;
             if (!(remotesResult.success && remotesResult.data && remotesResult.data.length > 0)) {
@@ -37784,7 +37803,7 @@ var ProjectPanel = function ProjectPanel(_ref) {
               break;
             }
             _context3.n = 4;
-            return _utils_gitAPI__WEBPACK_IMPORTED_MODULE_6__["default"].executeGitOperation('remote', currentRepo.path, 'get-url', 'origin');
+            return _utils_gitAPI__WEBPACK_IMPORTED_MODULE_7__["default"].executeGitOperation('remote', currentRepo.path, 'get-url', 'origin');
           case 4:
             remoteUrlResult = _context3.v;
             protocolInfo = '';
@@ -37799,14 +37818,14 @@ var ProjectPanel = function ProjectPanel(_ref) {
 
             // 有远程仓库，执行推送
             _context3.n = 5;
-            return _utils_gitAPI__WEBPACK_IMPORTED_MODULE_6__["default"].push(currentRepo.path);
+            return _utils_gitAPI__WEBPACK_IMPORTED_MODULE_7__["default"].push(currentRepo.path);
           case 5:
             result = _context3.v;
             if (!result.success) {
               _context3.n = 7;
               break;
             }
-            _utils_notification__WEBPACK_IMPORTED_MODULE_7__["default"].success("\u63A8\u9001\u6210\u529F".concat(protocolInfo));
+            _utils_notification__WEBPACK_IMPORTED_MODULE_8__["default"].success("\u63A8\u9001\u6210\u529F".concat(protocolInfo));
             // 推送成功后，更新仓库信息以正确反映状态
             _context3.n = 6;
             return fetchRepoInfo();
@@ -37815,13 +37834,13 @@ var ProjectPanel = function ProjectPanel(_ref) {
             break;
           case 7:
             // 这里显示最终的错误
-            _utils_notification__WEBPACK_IMPORTED_MODULE_7__["default"].error("\u63A8\u9001\u5931\u8D25".concat(protocolInfo, ": ").concat(result.error));
+            _utils_notification__WEBPACK_IMPORTED_MODULE_8__["default"].error("\u63A8\u9001\u5931\u8D25".concat(protocolInfo, ": ").concat(result.error));
           case 8:
             _context3.n = 10;
             break;
           case 9:
             // 没有配置远程仓库，提示用户
-            _utils_notification__WEBPACK_IMPORTED_MODULE_7__["default"].error('没有配置远程仓库，无法推送。请先在GitHub面板中设置远程仓库地址。');
+            _utils_notification__WEBPACK_IMPORTED_MODULE_8__["default"].error('没有配置远程仓库，无法推送。请先在GitHub面板中设置远程仓库地址。');
           case 10:
             _context3.n = 12;
             break;
@@ -37829,7 +37848,7 @@ var ProjectPanel = function ProjectPanel(_ref) {
             _context3.p = 11;
             _t7 = _context3.v;
             console.error('推送失败:', _t7);
-            _utils_notification__WEBPACK_IMPORTED_MODULE_7__["default"].error('推送失败: ' + _t7.message);
+            _utils_notification__WEBPACK_IMPORTED_MODULE_8__["default"].error('推送失败: ' + _t7.message);
           case 12:
             _context3.p = 12;
             setPullPushLoading(function (prev) {
@@ -37862,7 +37881,7 @@ var ProjectPanel = function ProjectPanel(_ref) {
             setIsCommitting(true);
             _context4.p = 2;
             _context4.n = 3;
-            return _utils_gitAPI__WEBPACK_IMPORTED_MODULE_6__["default"].add(currentRepo.path, '.');
+            return _utils_gitAPI__WEBPACK_IMPORTED_MODULE_7__["default"].add(currentRepo.path, '.');
           case 3:
             addResult = _context4.v;
             if (addResult.success) {
@@ -37873,7 +37892,7 @@ var ProjectPanel = function ProjectPanel(_ref) {
             return _context4.a(2);
           case 4:
             _context4.n = 5;
-            return _utils_gitAPI__WEBPACK_IMPORTED_MODULE_6__["default"].commit(currentRepo.path, commitMessage);
+            return _utils_gitAPI__WEBPACK_IMPORTED_MODULE_7__["default"].commit(currentRepo.path, commitMessage);
           case 5:
             commitResult = _context4.v;
             if (!commitResult.success) {
@@ -37885,6 +37904,8 @@ var ProjectPanel = function ProjectPanel(_ref) {
             _context4.n = 6;
             return fetchRepoInfo();
           case 6:
+            // 提交成功后，触发自定义事件以通知其他组件（如FileChanges）刷新
+            window.dispatchEvent(new CustomEvent('git-commit-completed'));
             _context4.n = 8;
             break;
           case 7:
@@ -37968,6 +37989,12 @@ var ProjectPanel = function ProjectPanel(_ref) {
     disabled: pullPushLoading.pull || loading,
     title: "\u62C9\u53D6\u8FDC\u7A0B\u66F4\u65B0"
   }, pullPushLoading.pull ? '拉取中...' : '拉取'), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement("button", {
+    className: "btn btn-warning",
+    onClick: function onClick() {
+      return setShowTagPushModal(true);
+    },
+    title: "\u63A8\u9001\u6807\u7B7E"
+  }, "\u63A8\u9001\u6807\u7B7E"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement("button", {
     className: "btn ".concat(hasUnpushedCommits ? 'btn-success' : 'btn-default'),
     onClick: handlePush,
     disabled: pullPushLoading.push || loading || !hasUnpushedCommits,
@@ -38060,6 +38087,15 @@ var ProjectPanel = function ProjectPanel(_ref) {
       return setShowSSHConfig(false);
     },
     onSSHKeyGenerated: handleSSHKeyGenerated
+  }), showTagPushModal && /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement(_TagPushModal__WEBPACK_IMPORTED_MODULE_6__["default"], {
+    currentRepo: currentRepo,
+    isOpen: showTagPushModal,
+    onClose: function onClose() {
+      return setShowTagPushModal(false);
+    },
+    onTagPushed: function onTagPushed(tagName) {
+      _utils_notification__WEBPACK_IMPORTED_MODULE_8__["default"].success("\u6807\u7B7E ".concat(tagName, " \u63A8\u9001\u6210\u529F"));
+    }
   }));
 };
 ProjectPanel.propTypes = {
@@ -38858,6 +38894,277 @@ SSHConfigModal.propTypes = {
   onSSHKeyGenerated: (prop_types__WEBPACK_IMPORTED_MODULE_1___default().func)
 };
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (SSHConfigModal);
+
+/***/ }),
+
+/***/ "./renderer/src/components/TagPushModal.js":
+/*!*************************************************!*\
+  !*** ./renderer/src/components/TagPushModal.js ***!
+  \*************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var prop_types__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! prop-types */ "./node_modules/prop-types/index.js");
+/* harmony import */ var prop_types__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(prop_types__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var _utils_gitAPI__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../utils/gitAPI */ "./renderer/utils/gitAPI.js");
+function _regenerator() { /*! regenerator-runtime -- Copyright (c) 2014-present, Facebook, Inc. -- license (MIT): https://github.com/babel/babel/blob/main/packages/babel-helpers/LICENSE */ var e, t, r = "function" == typeof Symbol ? Symbol : {}, n = r.iterator || "@@iterator", o = r.toStringTag || "@@toStringTag"; function i(r, n, o, i) { var c = n && n.prototype instanceof Generator ? n : Generator, u = Object.create(c.prototype); return _regeneratorDefine2(u, "_invoke", function (r, n, o) { var i, c, u, f = 0, p = o || [], y = !1, G = { p: 0, n: 0, v: e, a: d, f: d.bind(e, 4), d: function d(t, r) { return i = t, c = 0, u = e, G.n = r, a; } }; function d(r, n) { for (c = r, u = n, t = 0; !y && f && !o && t < p.length; t++) { var o, i = p[t], d = G.p, l = i[2]; r > 3 ? (o = l === n) && (u = i[(c = i[4]) ? 5 : (c = 3, 3)], i[4] = i[5] = e) : i[0] <= d && ((o = r < 2 && d < i[1]) ? (c = 0, G.v = n, G.n = i[1]) : d < l && (o = r < 3 || i[0] > n || n > l) && (i[4] = r, i[5] = n, G.n = l, c = 0)); } if (o || r > 1) return a; throw y = !0, n; } return function (o, p, l) { if (f > 1) throw TypeError("Generator is already running"); for (y && 1 === p && d(p, l), c = p, u = l; (t = c < 2 ? e : u) || !y;) { i || (c ? c < 3 ? (c > 1 && (G.n = -1), d(c, u)) : G.n = u : G.v = u); try { if (f = 2, i) { if (c || (o = "next"), t = i[o]) { if (!(t = t.call(i, u))) throw TypeError("iterator result is not an object"); if (!t.done) return t; u = t.value, c < 2 && (c = 0); } else 1 === c && (t = i["return"]) && t.call(i), c < 2 && (u = TypeError("The iterator does not provide a '" + o + "' method"), c = 1); i = e; } else if ((t = (y = G.n < 0) ? u : r.call(n, G)) !== a) break; } catch (t) { i = e, c = 1, u = t; } finally { f = 1; } } return { value: t, done: y }; }; }(r, o, i), !0), u; } var a = {}; function Generator() {} function GeneratorFunction() {} function GeneratorFunctionPrototype() {} t = Object.getPrototypeOf; var c = [][n] ? t(t([][n]())) : (_regeneratorDefine2(t = {}, n, function () { return this; }), t), u = GeneratorFunctionPrototype.prototype = Generator.prototype = Object.create(c); function f(e) { return Object.setPrototypeOf ? Object.setPrototypeOf(e, GeneratorFunctionPrototype) : (e.__proto__ = GeneratorFunctionPrototype, _regeneratorDefine2(e, o, "GeneratorFunction")), e.prototype = Object.create(u), e; } return GeneratorFunction.prototype = GeneratorFunctionPrototype, _regeneratorDefine2(u, "constructor", GeneratorFunctionPrototype), _regeneratorDefine2(GeneratorFunctionPrototype, "constructor", GeneratorFunction), GeneratorFunction.displayName = "GeneratorFunction", _regeneratorDefine2(GeneratorFunctionPrototype, o, "GeneratorFunction"), _regeneratorDefine2(u), _regeneratorDefine2(u, o, "Generator"), _regeneratorDefine2(u, n, function () { return this; }), _regeneratorDefine2(u, "toString", function () { return "[object Generator]"; }), (_regenerator = function _regenerator() { return { w: i, m: f }; })(); }
+function _regeneratorDefine2(e, r, n, t) { var i = Object.defineProperty; try { i({}, "", {}); } catch (e) { i = 0; } _regeneratorDefine2 = function _regeneratorDefine(e, r, n, t) { function o(r, n) { _regeneratorDefine2(e, r, function (e) { return this._invoke(r, n, e); }); } r ? i ? i(e, r, { value: n, enumerable: !t, configurable: !t, writable: !t }) : e[r] = n : (o("next", 0), o("throw", 1), o("return", 2)); }, _regeneratorDefine2(e, r, n, t); }
+function asyncGeneratorStep(n, t, e, r, o, a, c) { try { var i = n[a](c), u = i.value; } catch (n) { return void e(n); } i.done ? t(u) : Promise.resolve(u).then(r, o); }
+function _asyncToGenerator(n) { return function () { var t = this, e = arguments; return new Promise(function (r, o) { var a = n.apply(t, e); function _next(n) { asyncGeneratorStep(a, r, o, _next, _throw, "next", n); } function _throw(n) { asyncGeneratorStep(a, r, o, _next, _throw, "throw", n); } _next(void 0); }); }; }
+function _slicedToArray(r, e) { return _arrayWithHoles(r) || _iterableToArrayLimit(r, e) || _unsupportedIterableToArray(r, e) || _nonIterableRest(); }
+function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
+function _unsupportedIterableToArray(r, a) { if (r) { if ("string" == typeof r) return _arrayLikeToArray(r, a); var t = {}.toString.call(r).slice(8, -1); return "Object" === t && r.constructor && (t = r.constructor.name), "Map" === t || "Set" === t ? Array.from(r) : "Arguments" === t || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(t) ? _arrayLikeToArray(r, a) : void 0; } }
+function _arrayLikeToArray(r, a) { (null == a || a > r.length) && (a = r.length); for (var e = 0, n = Array(a); e < a; e++) n[e] = r[e]; return n; }
+function _iterableToArrayLimit(r, l) { var t = null == r ? null : "undefined" != typeof Symbol && r[Symbol.iterator] || r["@@iterator"]; if (null != t) { var e, n, i, u, a = [], f = !0, o = !1; try { if (i = (t = t.call(r)).next, 0 === l) { if (Object(t) !== t) return; f = !1; } else for (; !(f = (e = i.call(t)).done) && (a.push(e.value), a.length !== l); f = !0); } catch (r) { o = !0, n = r; } finally { try { if (!f && null != t["return"] && (u = t["return"](), Object(u) !== u)) return; } finally { if (o) throw n; } } return a; } }
+function _arrayWithHoles(r) { if (Array.isArray(r)) return r; }
+
+
+
+var TagPushModal = function TagPushModal(_ref) {
+  var currentRepo = _ref.currentRepo,
+    isOpen = _ref.isOpen,
+    onClose = _ref.onClose,
+    onTagPushed = _ref.onTagPushed;
+  var _useState = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(''),
+    _useState2 = _slicedToArray(_useState, 2),
+    tagInput = _useState2[0],
+    setTagInput = _useState2[1];
+  var _useState3 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(false),
+    _useState4 = _slicedToArray(_useState3, 2),
+    isLoading = _useState4[0],
+    setIsLoading = _useState4[1];
+  var _useState5 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(''),
+    _useState6 = _slicedToArray(_useState5, 2),
+    error = _useState6[0],
+    setError = _useState6[1];
+  var _useState7 = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(''),
+    _useState8 = _slicedToArray(_useState7, 2),
+    suggestedTag = _useState8[0],
+    setSuggestedTag = _useState8[1];
+
+  // 组件加载时获取最新的tag并生成建议
+  (0,react__WEBPACK_IMPORTED_MODULE_0__.useEffect)(function () {
+    if (isOpen && currentRepo) {
+      fetchAndSuggestTag();
+    } else {
+      setTagInput('');
+      setError('');
+    }
+  }, [isOpen, currentRepo]);
+  var fetchAndSuggestTag = /*#__PURE__*/function () {
+    var _ref2 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee() {
+      var result, tags, versionTags, nextTag, latestTag, versionParts, _t;
+      return _regenerator().w(function (_context) {
+        while (1) switch (_context.p = _context.n) {
+          case 0:
+            setIsLoading(true);
+            setError('');
+            _context.p = 1;
+            _context.n = 2;
+            return _utils_gitAPI__WEBPACK_IMPORTED_MODULE_2__["default"].fetch(currentRepo.path);
+          case 2:
+            _context.n = 3;
+            return _utils_gitAPI__WEBPACK_IMPORTED_MODULE_2__["default"].getTags(currentRepo.path);
+          case 3:
+            result = _context.v;
+            if (result.success) {
+              tags = result.data || []; // 过滤出有效的版本标签（以v开头后跟数字的格式）
+              versionTags = tags.filter(function (tag) {
+                return /^v\d+\.\d+\.\d+$/.test(tag.trim());
+              }).sort(function (a, b) {
+                // 比较版本号的函数
+                var aParts = a.slice(1).split('.').map(Number); // 去掉'v'前缀并分割
+                var bParts = b.slice(1).split('.').map(Number);
+                for (var i = 0; i < 3; i++) {
+                  if (aParts[i] > bParts[i]) return -1;
+                  if (aParts[i] < bParts[i]) return 1;
+                }
+                return 0;
+              });
+              nextTag = 'v1.0.0'; // 默认从v1.0.0开始
+              if (versionTags.length > 0) {
+                latestTag = versionTags[0]; // 排序后第一个是最新版本
+                versionParts = latestTag.slice(1).split('.').map(Number); // 去掉'v'前缀
+                // 简单地将最后一位版本号加1
+                versionParts[2] += 1;
+                nextTag = "v".concat(versionParts.join('.'));
+              }
+              setSuggestedTag(nextTag);
+              setTagInput(nextTag); // 设置输入框默认值为建议的标签
+            } else {
+              // 如果获取标签失败，也使用默认值
+              setSuggestedTag('v1.0.0');
+              setTagInput('v1.0.0');
+            }
+            _context.n = 5;
+            break;
+          case 4:
+            _context.p = 4;
+            _t = _context.v;
+            console.error('获取标签建议时出错:', _t);
+            setSuggestedTag('v1.0.0');
+            setTagInput('v1.0.0');
+            setError('获取远程标签失败，使用默认值 v1.0.0');
+          case 5:
+            _context.p = 5;
+            setIsLoading(false);
+            return _context.f(5);
+          case 6:
+            return _context.a(2);
+        }
+      }, _callee, null, [[1, 4, 5, 6]]);
+    }));
+    return function fetchAndSuggestTag() {
+      return _ref2.apply(this, arguments);
+    };
+  }();
+  var handleConfirm = /*#__PURE__*/function () {
+    var _ref3 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee2() {
+      var createResult, pushResult, _t2;
+      return _regenerator().w(function (_context2) {
+        while (1) switch (_context2.p = _context2.n) {
+          case 0:
+            if (tagInput.trim()) {
+              _context2.n = 1;
+              break;
+            }
+            setError('请输入标签名称');
+            return _context2.a(2);
+          case 1:
+            if (/^v\d+\.\d+\.\d+$/.test(tagInput.trim())) {
+              _context2.n = 2;
+              break;
+            }
+            setError('标签格式不正确，应为 vX.X.X 格式，如 v1.1.1');
+            return _context2.a(2);
+          case 2:
+            setIsLoading(true);
+            setError('');
+            _context2.p = 3;
+            _context2.n = 4;
+            return _utils_gitAPI__WEBPACK_IMPORTED_MODULE_2__["default"].createTag(currentRepo.path, tagInput.trim());
+          case 4:
+            createResult = _context2.v;
+            if (createResult.success) {
+              _context2.n = 5;
+              break;
+            }
+            throw new Error(createResult.error || '创建标签失败');
+          case 5:
+            _context2.n = 6;
+            return _utils_gitAPI__WEBPACK_IMPORTED_MODULE_2__["default"].pushTags(currentRepo.path, 'origin', tagInput.trim());
+          case 6:
+            pushResult = _context2.v;
+            if (pushResult.success) {
+              _context2.n = 7;
+              break;
+            }
+            throw new Error(pushResult.error || '推送标签失败');
+          case 7:
+            // 成功后调用回调
+            onTagPushed && onTagPushed(tagInput.trim());
+            onClose();
+            _context2.n = 9;
+            break;
+          case 8:
+            _context2.p = 8;
+            _t2 = _context2.v;
+            console.error('推送标签失败:', _t2);
+            setError(_t2.message || '推送标签失败');
+          case 9:
+            _context2.p = 9;
+            setIsLoading(false);
+            return _context2.f(9);
+          case 10:
+            return _context2.a(2);
+        }
+      }, _callee2, null, [[3, 8, 9, 10]]);
+    }));
+    return function handleConfirm() {
+      return _ref3.apply(this, arguments);
+    };
+  }();
+  if (!isOpen) return null;
+  return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", {
+    className: "modal-overlay"
+  }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", {
+    className: "modal-content",
+    style: {
+      width: '500px'
+    }
+  }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", {
+    className: "modal-header"
+  }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement("h3", null, "\u63A8\u9001\u6807\u7B7E"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement("button", {
+    className: "modal-close-btn",
+    onClick: onClose
+  }, "\xD7")), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", {
+    className: "modal-body"
+  }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", {
+    className: "form-group"
+  }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement("label", {
+    htmlFor: "tagInput"
+  }, "\u7248\u672C\u6807\u7B7E:"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement("input", {
+    id: "tagInput",
+    type: "text",
+    value: tagInput,
+    onChange: function onChange(e) {
+      return setTagInput(e.target.value);
+    },
+    placeholder: "\u8F93\u5165\u6807\u7B7E\u540D\u79F0\uFF0C\u5982 v1.1.1",
+    className: "form-input",
+    disabled: isLoading,
+    style: {
+      width: '100%',
+      padding: '8px',
+      border: '1px solid #ccc',
+      borderRadius: '4px',
+      fontSize: '14px'
+    }
+  }), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", {
+    style: {
+      fontSize: '12px',
+      color: '#666',
+      marginTop: '5px',
+      fontStyle: 'italic'
+    }
+  }, "\u5EFA\u8BAE: ", suggestedTag)), error && /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", {
+    className: "error-message",
+    style: {
+      color: '#dc3545',
+      marginTop: '10px',
+      padding: '8px',
+      backgroundColor: '#f8d7da',
+      border: '1px solid #f5c6cb',
+      borderRadius: '4px'
+    }
+  }, error)), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement("div", {
+    className: "modal-footer"
+  }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement("button", {
+    className: "btn btn-secondary",
+    onClick: onClose,
+    disabled: isLoading,
+    style: {
+      marginRight: '10px'
+    }
+  }, "\u53D6\u6D88"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement("button", {
+    className: "btn btn-primary",
+    onClick: handleConfirm,
+    disabled: isLoading
+  }, isLoading ? '推送中...' : '确认推送'))));
+};
+TagPushModal.propTypes = {
+  currentRepo: (prop_types__WEBPACK_IMPORTED_MODULE_1___default().object).isRequired,
+  isOpen: (prop_types__WEBPACK_IMPORTED_MODULE_1___default().bool).isRequired,
+  onClose: (prop_types__WEBPACK_IMPORTED_MODULE_1___default().func).isRequired,
+  onTagPushed: (prop_types__WEBPACK_IMPORTED_MODULE_1___default().func)
+};
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (TagPushModal);
 
 /***/ }),
 
@@ -39890,6 +40197,142 @@ var GitAPI = /*#__PURE__*/function () {
         return _getCurrentBranch.apply(this, arguments);
       }
       return getCurrentBranch;
+    }()
+    /**
+     * 获取标签列表
+     * @param {string} repoPath - 仓库路径
+     * @returns {Promise} 标签列表
+     */
+    )
+  }, {
+    key: "getTags",
+    value: (function () {
+      var _getTags = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee16(repoPath) {
+        var result, tags;
+        return _regenerator().w(function (_context16) {
+          while (1) switch (_context16.n) {
+            case 0:
+              console.log("\u6267\u884CGit\u64CD\u4F5C: get tags in ".concat(repoPath));
+              _context16.n = 1;
+              return this.executeGitOperation('tag-list', repoPath);
+            case 1:
+              result = _context16.v;
+              if (result.success) {
+                console.log("\u83B7\u53D6\u6807\u7B7E\u6210\u529F: get tags in ".concat(repoPath));
+                // 将返回的标签字符串按行分割并过滤空行
+                if (typeof result.data === 'string') {
+                  tags = result.data.split('\n').filter(function (tag) {
+                    return tag.trim() !== '';
+                  });
+                  result.data = tags;
+                }
+              } else {
+                console.error("Git\u64CD\u4F5C\u5931\u8D25: get tags in ".concat(repoPath), result.error);
+              }
+              return _context16.a(2, result);
+          }
+        }, _callee16, this);
+      }));
+      function getTags(_x22) {
+        return _getTags.apply(this, arguments);
+      }
+      return getTags;
+    }()
+    /**
+     * 创建标签
+     * @param {string} repoPath - 仓库路径
+     * @param {string} tagName - 标签名称
+     * @param {string} message - 标签注释（可选）
+     * @returns {Promise} 操作结果
+     */
+    )
+  }, {
+    key: "createTag",
+    value: (function () {
+      var _createTag = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee17(repoPath, tagName) {
+        var message,
+          result,
+          _args17 = arguments;
+        return _regenerator().w(function (_context17) {
+          while (1) switch (_context17.n) {
+            case 0:
+              message = _args17.length > 2 && _args17[2] !== undefined ? _args17[2] : null;
+              console.log("\u6267\u884CGit\u64CD\u4F5C: create tag ".concat(tagName, " in ").concat(repoPath));
+              if (!message) {
+                _context17.n = 2;
+                break;
+              }
+              _context17.n = 1;
+              return this.executeGitOperation('tag-create', repoPath, tagName, message);
+            case 1:
+              result = _context17.v;
+              _context17.n = 4;
+              break;
+            case 2:
+              _context17.n = 3;
+              return this.executeGitOperation('tag-create', repoPath, tagName);
+            case 3:
+              result = _context17.v;
+            case 4:
+              if (result.success) {
+                _notification__WEBPACK_IMPORTED_MODULE_0__["default"].success("\u6807\u7B7E\u521B\u5EFA\u6210\u529F: ".concat(tagName));
+                console.log("Git\u64CD\u4F5C\u6210\u529F: create tag in ".concat(repoPath, " with name: ").concat(tagName));
+              } else {
+                console.error("Git\u64CD\u4F5C\u5931\u8D25: create tag in ".concat(repoPath, " with name: ").concat(tagName), result.error);
+              }
+              return _context17.a(2, result);
+          }
+        }, _callee17, this);
+      }));
+      function createTag(_x23, _x24) {
+        return _createTag.apply(this, arguments);
+      }
+      return createTag;
+    }()
+    /**
+     * 推送标签到远程仓库
+     * @param {string} repoPath - 仓库路径
+     * @param {string} remoteName - 远程仓库名称，默认为'origin'
+     * @param {string} tagName - 标签名称，如果为空则推送所有标签
+     * @returns {Promise} 操作结果
+     */
+    )
+  }, {
+    key: "pushTags",
+    value: (function () {
+      var _pushTags = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee18(repoPath) {
+        var remoteName,
+          tagName,
+          result,
+          _args18 = arguments;
+        return _regenerator().w(function (_context18) {
+          while (1) switch (_context18.n) {
+            case 0:
+              remoteName = _args18.length > 1 && _args18[1] !== undefined ? _args18[1] : 'origin';
+              tagName = _args18.length > 2 && _args18[2] !== undefined ? _args18[2] : null;
+              console.log("\u6267\u884CGit\u64CD\u4F5C: push tags in ".concat(repoPath, ", remote: ").concat(remoteName, ", tag: ").concat(tagName || 'all'));
+              _context18.n = 1;
+              return this.executeGitOperation('tag-push', repoPath, remoteName, tagName);
+            case 1:
+              result = _context18.v;
+              if (result.success) {
+                if (tagName) {
+                  _notification__WEBPACK_IMPORTED_MODULE_0__["default"].success("\u6807\u7B7E\u63A8\u9001\u6210\u529F: ".concat(tagName));
+                } else {
+                  _notification__WEBPACK_IMPORTED_MODULE_0__["default"].success('所有标签推送成功');
+                }
+                console.log("Git\u64CD\u4F5C\u6210\u529F: push tags in ".concat(repoPath));
+              } else {
+                console.error("Git\u64CD\u4F5C\u5931\u8D25: push tags in ".concat(repoPath), result.error);
+              }
+              return _context18.a(2, result);
+          }
+        }, _callee18, this);
+      }));
+      function pushTags(_x25) {
+        return _pushTags.apply(this, arguments);
+      }
+      return pushTags;
     }())
   }]);
 }(); // 创建单例实例

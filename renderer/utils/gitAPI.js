@@ -383,6 +383,74 @@ class GitAPI {
       return 'main';
     }
   }
+
+  /**
+   * 获取标签列表
+   * @param {string} repoPath - 仓库路径
+   * @returns {Promise} 标签列表
+   */
+  async getTags(repoPath) {
+    console.log(`执行Git操作: get tags in ${repoPath}`);
+    const result = await this.executeGitOperation('tag-list', repoPath);
+    if (result.success) {
+      console.log(`获取标签成功: get tags in ${repoPath}`);
+      // 将返回的标签字符串按行分割并过滤空行
+      if (typeof result.data === 'string') {
+        const tags = result.data.split('\n').filter(tag => tag.trim() !== '');
+        result.data = tags;
+      }
+    } else {
+      console.error(`Git操作失败: get tags in ${repoPath}`, result.error);
+    }
+    return result;
+  }
+
+  /**
+   * 创建标签
+   * @param {string} repoPath - 仓库路径
+   * @param {string} tagName - 标签名称
+   * @param {string} message - 标签注释（可选）
+   * @returns {Promise} 操作结果
+   */
+  async createTag(repoPath, tagName, message = null) {
+    console.log(`执行Git操作: create tag ${tagName} in ${repoPath}`);
+    let result;
+    if (message) {
+      result = await this.executeGitOperation('tag-create', repoPath, tagName, message);
+    } else {
+      result = await this.executeGitOperation('tag-create', repoPath, tagName);
+    }
+    if (result.success) {
+      notificationService.success(`标签创建成功: ${tagName}`);
+      console.log(`Git操作成功: create tag in ${repoPath} with name: ${tagName}`);
+    } else {
+      console.error(`Git操作失败: create tag in ${repoPath} with name: ${tagName}`, result.error);
+    }
+    return result;
+  }
+
+  /**
+   * 推送标签到远程仓库
+   * @param {string} repoPath - 仓库路径
+   * @param {string} remoteName - 远程仓库名称，默认为'origin'
+   * @param {string} tagName - 标签名称，如果为空则推送所有标签
+   * @returns {Promise} 操作结果
+   */
+  async pushTags(repoPath, remoteName = 'origin', tagName = null) {
+    console.log(`执行Git操作: push tags in ${repoPath}, remote: ${remoteName}, tag: ${tagName || 'all'}`);
+    const result = await this.executeGitOperation('tag-push', repoPath, remoteName, tagName);
+    if (result.success) {
+      if (tagName) {
+        notificationService.success(`标签推送成功: ${tagName}`);
+      } else {
+        notificationService.success('所有标签推送成功');
+      }
+      console.log(`Git操作成功: push tags in ${repoPath}`);
+    } else {
+      console.error(`Git操作失败: push tags in ${repoPath}`, result.error);
+    }
+    return result;
+  }
 }
 
 // 创建单例实例
