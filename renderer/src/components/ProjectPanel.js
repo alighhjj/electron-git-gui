@@ -80,48 +80,56 @@ const ProjectPanel = ({ currentRepo }) => {
       
       // 检查是否有未推送的提交
       let hasUnpushed = false;
-      if (remoteUrl) {  // 只有在有远程仓库时才检查
-        try {
-          // 不执行fetch，直接使用本地Git命令来检查是否有未推送的提交
-          // 使用rev-list命令检查本地分支与远程分支的差异（基于本地已有的远程分支信息）
-          const result = await gitAPI.executeGitOperation('rev-list', currentRepo.path, '--count', `origin/${branch}..HEAD`);
-          if (result.success) {
-            const count = parseInt(result.data?.trim() || '0');
-            hasUnpushed = count > 0;
-          } else {
-            // 如果rev-list失败（如没有提交或远程分支不存在），尝试使用branch -v命令获取信息
-            const branchResult = await gitAPI.executeGitOperation('branch', currentRepo.path, '-v');
-            if (branchResult.success) {
-              // 检查输出中是否包含ahead信息
-              const output = branchResult.data?.all ? branchResult.data.all.join('\n') : branchResult.data?.trim ? branchResult.data.trim() : '';
-              if (output) {
-                hasUnpushed = output.includes('[') && output.includes('ahead'); 
-              }
-            }
-          }
-        } catch (checkError) {
-          // 如果rev-list命令因为没有提交或远程分支不存在而失败，这是正常的
-          // 我们通过检查本地仓库状态来确定是否有未推送的提交
-          try {
-            const logResult = await gitAPI.getLog(currentRepo.path);
-            if (logResult.success && logResult.data && Array.isArray(logResult.data.all)) {
-              // 如果有本地提交历史，假设有未推送的提交（因为远程存在但没有提交记录）
-              hasUnpushed = logResult.data.all.length > 0;
-            } else {
-              // 没有本地提交历史，检查是否有暂存或未暂存的更改
-              const statusResult = await gitAPI.getStatus(currentRepo.path);
-              if (statusResult.success && statusResult.data) {
-                const workingDirChanges = statusResult.data.files || [];
-                hasUnpushed = Array.isArray(workingDirChanges) && workingDirChanges.length > 0;
-              } else {
-                hasUnpushed = false;
-              }
-            }
-          } catch (localCheckError) {
-            console.error('检查本地仓库状态失败:', localCheckError);
-            hasUnpushed = false;
-          }
+      
+      // 首先检查是否有本地提交
+      let hasLocalCommits = false;
+      try {
+        const logResult = await gitAPI.getLog(currentRepo.path);
+        if (logResult.success && logResult.data && Array.isArray(logResult.data.all)) {
+          hasLocalCommits = logResult.data.all.length > 0;
         }
+      } catch (logError) {
+        console.error('获取提交历史失败:', logError);
+        // 如果获取提交历史失败，检查是否有工作目录更改作为备用
+        try {
+          const statusResult = await gitAPI.getStatus(currentRepo.path);
+          if (statusResult.success && statusResult.data) {
+            const stagedFiles = statusResult.data.staged || [];
+            const notStagedFiles = statusResult.data.not_staged || [];
+            const untrackedFiles = statusResult.data.untracked || [];
+            hasLocalCommits = (Array.isArray(stagedFiles) && stagedFiles.length > 0) ||
+                             (Array.isArray(notStagedFiles) && notStagedFiles.length > 0) ||
+                             (Array.isArray(untrackedFiles) && untrackedFiles.length > 0);
+          }
+        } catch (statusError) {
+          console.error('检查仓库状态失败:', statusError);
+        }
+      }
+      
+      if (remoteUrl) {  // 有远程仓库
+        if (hasLocalCommits) {
+          // 如果有本地提交，很可能有未推送的内容
+          // 尝试使用rev-list检查本地与远程的差异
+          try {
+            const result = await gitAPI.executeGitOperation('rev-list', currentRepo.path, '--count', `origin/${branch}..HEAD`);
+            if (result.success) {
+              const count = parseInt(result.data?.trim() || '0');
+              hasUnpushed = count > 0;
+            } else {
+              // 如果rev-list失败，但已确认有本地提交，我们可以认为有未推送的内容
+              hasUnpushed = true;
+            }
+          } catch (checkError) {
+            // 即使rev-list失败，如果有本地提交，我们仍假设有未推送的内容
+            hasUnpushed = hasLocalCommits;
+          }
+        } else {
+          // 没有本地提交，确认没有未推送的内容
+          hasUnpushed = false;
+        }
+      } else {
+        // 没有远程仓库，如果有本地提交，则认为有"未推送"的内容
+        hasUnpushed = hasLocalCommits;
       }
 
       setHasUnpushedCommits(hasUnpushed);

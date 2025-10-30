@@ -36888,6 +36888,14 @@ var GitHubPanel = function GitHubPanel(_ref) {
             setRemoteUrl(''); // 清空输入框
             // 更新hasRemote状态
             setHasRemote(true);
+
+            // 触发自定义事件，通知其他组件远程URL已更新
+            window.dispatchEvent(new CustomEvent('remote-url-updated', {
+              detail: {
+                currentRepo: currentRepo,
+                newRemoteUrl: remoteUrl.trim()
+              }
+            }));
             _context.n = 14;
             break;
           case 11:
@@ -36904,6 +36912,14 @@ var GitHubPanel = function GitHubPanel(_ref) {
               setRemoteUrl(''); // 清空输入框
               // 更新hasRemote状态
               setHasRemote(true);
+
+              // 触发自定义事件，通知其他组件远程URL已更新
+              window.dispatchEvent(new CustomEvent('remote-url-updated', {
+                detail: {
+                  currentRepo: currentRepo,
+                  newRemoteUrl: remoteUrl.trim()
+                }
+              }));
             } else {
               alert('设置远程仓库失败: ' + updateResult.error);
             }
@@ -37520,7 +37536,7 @@ var ProjectPanel = function ProjectPanel(_ref) {
 
   var fetchRepoInfo = /*#__PURE__*/function () {
     var _ref2 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee() {
-      var branch, remoteUrl, remoteResult, _remoteResult$data, hasUnpushed, result, _result$data, count, branchResult, _branchResult$data, _branchResult$data2, output, logResult, _statusResult, workingDirChanges, statusResult, _t, _t2, _t3, _t4;
+      var branch, remoteUrl, remoteResult, _remoteResult$data, hasUnpushed, hasLocalCommits, logResult, _statusResult, stagedFiles, notStagedFiles, untrackedFiles, result, _result$data, count, statusResult, _t, _t2, _t3, _t4, _t5;
       return _regenerator().w(function (_context) {
         while (1) switch (_context.p = _context.n) {
           case 0:
@@ -37560,75 +37576,81 @@ var ProjectPanel = function ProjectPanel(_ref) {
             // 如果出错，也认为没有远程仓库
           case 7:
             // 检查是否有未推送的提交
-            hasUnpushed = false;
-            if (!remoteUrl) {
-              _context.n = 20;
-              break;
-            }
+            hasUnpushed = false; // 首先检查是否有本地提交
+            hasLocalCommits = false;
             _context.p = 8;
             _context.n = 9;
-            return _utils_gitAPI__WEBPACK_IMPORTED_MODULE_6__["default"].executeGitOperation('rev-list', currentRepo.path, '--count', "origin/".concat(branch, "..HEAD"));
+            return _utils_gitAPI__WEBPACK_IMPORTED_MODULE_6__["default"].getLog(currentRepo.path);
           case 9:
-            result = _context.v;
-            if (!result.success) {
-              _context.n = 10;
-              break;
+            logResult = _context.v;
+            if (logResult.success && logResult.data && Array.isArray(logResult.data.all)) {
+              hasLocalCommits = logResult.data.all.length > 0;
             }
-            count = parseInt(((_result$data = result.data) === null || _result$data === void 0 ? void 0 : _result$data.trim()) || '0');
-            hasUnpushed = count > 0;
-            _context.n = 12;
+            _context.n = 14;
             break;
           case 10:
-            _context.n = 11;
-            return _utils_gitAPI__WEBPACK_IMPORTED_MODULE_6__["default"].executeGitOperation('branch', currentRepo.path, '-v');
-          case 11:
-            branchResult = _context.v;
-            if (branchResult.success) {
-              // 检查输出中是否包含ahead信息
-              output = (_branchResult$data = branchResult.data) !== null && _branchResult$data !== void 0 && _branchResult$data.all ? branchResult.data.all.join('\n') : (_branchResult$data2 = branchResult.data) !== null && _branchResult$data2 !== void 0 && _branchResult$data2.trim ? branchResult.data.trim() : '';
-              if (output) {
-                hasUnpushed = output.includes('[') && output.includes('ahead');
-              }
-            }
+            _context.p = 10;
+            _t2 = _context.v;
+            console.error('获取提交历史失败:', _t2);
+            // 如果获取提交历史失败，检查是否有工作目录更改作为备用
+            _context.p = 11;
+            _context.n = 12;
+            return _utils_gitAPI__WEBPACK_IMPORTED_MODULE_6__["default"].getStatus(currentRepo.path);
           case 12:
-            _context.n = 20;
+            _statusResult = _context.v;
+            if (_statusResult.success && _statusResult.data) {
+              stagedFiles = _statusResult.data.staged || [];
+              notStagedFiles = _statusResult.data.not_staged || [];
+              untrackedFiles = _statusResult.data.untracked || [];
+              hasLocalCommits = Array.isArray(stagedFiles) && stagedFiles.length > 0 || Array.isArray(notStagedFiles) && notStagedFiles.length > 0 || Array.isArray(untrackedFiles) && untrackedFiles.length > 0;
+            }
+            _context.n = 14;
             break;
           case 13:
             _context.p = 13;
-            _t2 = _context.v;
-            _context.p = 14;
-            _context.n = 15;
-            return _utils_gitAPI__WEBPACK_IMPORTED_MODULE_6__["default"].getLog(currentRepo.path);
-          case 15:
-            logResult = _context.v;
-            if (!(logResult.success && logResult.data && Array.isArray(logResult.data.all))) {
-              _context.n = 16;
+            _t3 = _context.v;
+            console.error('检查仓库状态失败:', _t3);
+          case 14:
+            if (!remoteUrl) {
+              _context.n = 21;
               break;
             }
-            // 如果有本地提交历史，假设有未推送的提交（因为远程存在但没有提交记录）
-            hasUnpushed = logResult.data.all.length > 0;
+            if (!hasLocalCommits) {
+              _context.n = 19;
+              break;
+            }
+            _context.p = 15;
+            _context.n = 16;
+            return _utils_gitAPI__WEBPACK_IMPORTED_MODULE_6__["default"].executeGitOperation('rev-list', currentRepo.path, '--count', "origin/".concat(branch, "..HEAD"));
+          case 16:
+            result = _context.v;
+            if (result.success) {
+              count = parseInt(((_result$data = result.data) === null || _result$data === void 0 ? void 0 : _result$data.trim()) || '0');
+              hasUnpushed = count > 0;
+            } else {
+              // 如果rev-list失败，但已确认有本地提交，我们可以认为有未推送的内容
+              hasUnpushed = true;
+            }
             _context.n = 18;
             break;
-          case 16:
-            _context.n = 17;
-            return _utils_gitAPI__WEBPACK_IMPORTED_MODULE_6__["default"].getStatus(currentRepo.path);
           case 17:
-            _statusResult = _context.v;
-            if (_statusResult.success && _statusResult.data) {
-              workingDirChanges = _statusResult.data.files || [];
-              hasUnpushed = Array.isArray(workingDirChanges) && workingDirChanges.length > 0;
-            } else {
-              hasUnpushed = false;
-            }
+            _context.p = 17;
+            _t4 = _context.v;
+            // 即使rev-list失败，如果有本地提交，我们仍假设有未推送的内容
+            hasUnpushed = hasLocalCommits;
           case 18:
             _context.n = 20;
             break;
           case 19:
-            _context.p = 19;
-            _t3 = _context.v;
-            console.error('检查本地仓库状态失败:', _t3);
+            // 没有本地提交，确认没有未推送的内容
             hasUnpushed = false;
           case 20:
+            _context.n = 22;
+            break;
+          case 21:
+            // 没有远程仓库，如果有本地提交，则认为有"未推送"的内容
+            hasUnpushed = hasLocalCommits;
+          case 22:
             setHasUnpushedCommits(hasUnpushed);
             setRepoInfo({
               branch: branch,
@@ -37639,27 +37661,27 @@ var ProjectPanel = function ProjectPanel(_ref) {
             });
 
             // 获取仓库状态
-            _context.n = 21;
+            _context.n = 23;
             return _utils_gitAPI__WEBPACK_IMPORTED_MODULE_6__["default"].getStatus(currentRepo.path);
-          case 21:
+          case 23:
             statusResult = _context.v;
             if (statusResult.success) {
               // 更新仓库状态
             }
-            _context.n = 23;
+            _context.n = 25;
             break;
-          case 22:
-            _context.p = 22;
-            _t4 = _context.v;
-            console.error('获取仓库信息失败:', _t4);
-          case 23:
-            _context.p = 23;
-            setLoading(false);
-            return _context.f(23);
           case 24:
+            _context.p = 24;
+            _t5 = _context.v;
+            console.error('获取仓库信息失败:', _t5);
+          case 25:
+            _context.p = 25;
+            setLoading(false);
+            return _context.f(25);
+          case 26:
             return _context.a(2);
         }
-      }, _callee, null, [[14, 19], [8, 13], [4, 6], [2, 22, 23, 24]]);
+      }, _callee, null, [[15, 17], [11, 13], [8, 10], [4, 6], [2, 24, 25, 26]]);
     }));
     return function fetchRepoInfo() {
       return _ref2.apply(this, arguments);
@@ -37667,7 +37689,7 @@ var ProjectPanel = function ProjectPanel(_ref) {
   }();
   var handlePull = /*#__PURE__*/function () {
     var _ref3 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee2() {
-      var remoteUrlResult, protocolInfo, remoteUrl, result, _t5;
+      var remoteUrlResult, protocolInfo, remoteUrl, result, _t6;
       return _regenerator().w(function (_context2) {
         while (1) switch (_context2.p = _context2.n) {
           case 0:
@@ -37715,9 +37737,9 @@ var ProjectPanel = function ProjectPanel(_ref) {
             break;
           case 5:
             _context2.p = 5;
-            _t5 = _context2.v;
-            console.error('拉取失败:', _t5);
-            _utils_notification__WEBPACK_IMPORTED_MODULE_7__["default"].error('拉取失败: ' + _t5.message);
+            _t6 = _context2.v;
+            console.error('拉取失败:', _t6);
+            _utils_notification__WEBPACK_IMPORTED_MODULE_7__["default"].error('拉取失败: ' + _t6.message);
           case 6:
             _context2.p = 6;
             setPullPushLoading(function (prev) {
@@ -37737,7 +37759,7 @@ var ProjectPanel = function ProjectPanel(_ref) {
   }();
   var handlePush = /*#__PURE__*/function () {
     var _ref4 = _asyncToGenerator(/*#__PURE__*/_regenerator().m(function _callee3() {
-      var remotesResult, remoteUrlResult, protocolInfo, remoteUrl, result, _t6;
+      var remotesResult, remoteUrlResult, protocolInfo, remoteUrl, result, _t7;
       return _regenerator().w(function (_context3) {
         while (1) switch (_context3.p = _context3.n) {
           case 0:
@@ -37805,9 +37827,9 @@ var ProjectPanel = function ProjectPanel(_ref) {
             break;
           case 11:
             _context3.p = 11;
-            _t6 = _context3.v;
-            console.error('推送失败:', _t6);
-            _utils_notification__WEBPACK_IMPORTED_MODULE_7__["default"].error('推送失败: ' + _t6.message);
+            _t7 = _context3.v;
+            console.error('推送失败:', _t7);
+            _utils_notification__WEBPACK_IMPORTED_MODULE_7__["default"].error('推送失败: ' + _t7.message);
           case 12:
             _context3.p = 12;
             setPullPushLoading(function (prev) {

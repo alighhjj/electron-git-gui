@@ -49,6 +49,14 @@ const GitHubPanel = ({ currentRepo }) => {
         setRemoteUrl(''); // 清空输入框
         // 更新hasRemote状态
         setHasRemote(true);
+        
+        // 触发自定义事件，通知其他组件远程URL已更新
+        window.dispatchEvent(new CustomEvent('remote-url-updated', { 
+          detail: { 
+            currentRepo: currentRepo,
+            newRemoteUrl: remoteUrl.trim()
+          } 
+        }));
       } else {
         // 检查错误信息是否为remote already exists
         if (result.error && result.error.includes('remote origin already exists')) {
@@ -59,6 +67,14 @@ const GitHubPanel = ({ currentRepo }) => {
             setRemoteUrl(''); // 清空输入框
             // 更新hasRemote状态
             setHasRemote(true);
+            
+            // 触发自定义事件，通知其他组件远程URL已更新
+            window.dispatchEvent(new CustomEvent('remote-url-updated', { 
+              detail: { 
+                currentRepo: currentRepo,
+                newRemoteUrl: remoteUrl.trim()
+              } 
+            }));
           } else {
             alert('设置远程仓库失败: ' + updateResult.error);
           }
